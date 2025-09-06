@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  # MQTT Broker for Pi5 communication
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    container_name: mqtt_broker
+    ports:
+      - "1883:1883"    # MQTT port for Pi5
+      - "9001:9001"    # WebSocket port for web apps
+    volumes:
+      - ./mqtt/config:/mosquitto/config
+      - ./mqtt/data:/mosquitto/data
+      - ./mqtt/log:/mosquitto/log
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: p@ssword
+      MYSQL_DATABASE: TESA
+      MYSQL_USER: user
+      MYSQL_PASSWORD: p@ssword
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    networks:
+      - app-network
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+
+networks:
+  app-network:
+    driver: bridge
