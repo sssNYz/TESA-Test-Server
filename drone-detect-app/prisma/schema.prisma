@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model DetectionRaw {
+  id        BigInt   @id @default(autoincrement())
+  cameraId  String   @map("camera_id") @db.VarChar(64)
+  ts        BigInt   // event timestamp (ms)
+  recvTs    BigInt   @map("recv_ts") // server receive time (ms)
+  count     Int
+  payload   Json     // original normalized JSON payload
+  msgKey    String?  @map("msg_key") @db.VarChar(128) // for idempotency (QoS1)
+  
+  @@map("detections_raw")
+  @@index([cameraId, ts], map: "idx_cam_ts")
+  @@unique([cameraId, msgKey], map: "unique_cam_msg_key")
+}
+
+model DetectionObject {
+  id        BigInt   @id @default(autoincrement())
+  cameraId  String   @map("camera_id") @db.VarChar(64)
+  ts        BigInt   // event timestamp (ms)
+  objectIdx Int      @map("object_idx")
+  confidence Float?
+  centerX   Float?   @map("center_x")
+  centerY   Float?   @map("center_y")
+  bboxX     Float?   @map("bbox_x")
+  bboxY     Float?   @map("bbox_y")
+  bboxW     Float?   @map("bbox_w")
+  bboxH     Float?   @map("bbox_h")
+  area      Float?
+  
+  @@map("detection_objects")
+  @@index([cameraId, ts], map: "idx_obj_cam_ts")
+}
