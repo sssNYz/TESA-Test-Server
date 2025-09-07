@@ -1,0 +1,19 @@
+# MQTT broker files
+TESA/mqtt/data/
+TESA/mqtt/log/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
